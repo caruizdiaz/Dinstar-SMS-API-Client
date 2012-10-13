@@ -15,10 +15,10 @@
 void new_sms_handler(str_t *gw_ip, dwg_sms_received_t *sms)
 {
 	LOG(L_DEBUG, "[%.*s] Encoding: %d, From: %s, Len: %d, Text: %.*s\n", gw_ip->len, gw_ip->s,
-																		sms->encoding,
-																	    sms->number,
-																	    sms->message.len,
-																	    sms->message.len, sms->message.s);
+										sms->encoding,
+										sms->number,
+										sms->message.len,
+										sms->message.len, sms->message.s);
 }
 
 void status_handler(str_t *gw_ip, dwg_ports_status_t *status)
@@ -46,7 +46,11 @@ int main(int argc, char** argv)
 				.msg_sms_recv_callback	= new_sms_handler
 	};
 
+	LOG(L_DEBUG, "%s: Setting up sever... \n", __FUNCTION__);
+
 	dwg_start_server(LISTEN_PORT, &callbacks);
+
+	LOG(L_DEBUG, "%s: Server listening at port %d\n", __FUNCTION__, LISTEN_PORT);
 
 	str_t des = { "59598146623", sizeof("59598146623") - 1};
 	str_t msg = { "test from PY!", sizeof("test from PY!") - 1 };
