@@ -10,16 +10,21 @@
 #include "dwg/dwg.h"
 
 #define LISTEN_PORT		7008
-#define SEND_SMS_PORT	0
+#define SEND_SMS_PORT		0
 
 void new_sms_handler(str_t *gw_ip, dwg_sms_received_t *sms)
 {
-	LOG(L_DEBUG, "[%.*s] Encoding: %d, From: %s, Len: %d, Text: %.*s\n", gw_ip->len, gw_ip->s,
+	printf("rcv:\n");
+
+	
+
+	LOG(L_DEBUG, "[%.*s] Encoding: %d, From: %.*s, Len: %d, Text: %.*s\n", gw_ip->len, gw_ip->s,
 										sms->encoding,
-										sms->number,
+										sms->str_number.len, sms->str_number.s,
 										sms->message.len,
 										sms->message.len, sms->message.s);
 }
+
 
 void status_handler(str_t *gw_ip, dwg_ports_status_t *status)
 {
@@ -52,8 +57,9 @@ int main(int argc, char** argv)
 
 	LOG(L_DEBUG, "%s: Server listening at port %d\n", __FUNCTION__, LISTEN_PORT);
 
-	str_t des = { "59598146623", sizeof("59598146623") - 1};
-	str_t msg = { "test from PY!", sizeof("test from PY!") - 1 };
+	str_t des = { "0981146623", sizeof("0981146623") - 1};
+//	str_t msg = { "abcd", sizeof("abcd") - 1 };
+	str_t msg = { "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzbcdefghijklmnopqrstuvwxyz", sizeof("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz") - 1 };
 
 	for(;;)
 	{

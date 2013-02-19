@@ -10,7 +10,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-
 #include "dwg_util.h"
 
 typedef struct sms
@@ -18,6 +17,9 @@ typedef struct sms
 	str_t destination;
 	str_t content;
 } sms_t;
+
+#define DWG_MSG_HEADER_SIZE 	24
+#define DWG_SMS_HEADER_SIZE 	45 /* 24 + 1 + 1 + 15 + 1 + 1 + 2 */
 
 typedef struct dwg_msg_header_id
 {
@@ -37,9 +39,12 @@ typedef struct dwg_msg_header
 
 typedef struct dwg_msg_des_header
 {
-	int length;
-	short type;
-	short flag;
+	int32_t length;
+	char MAC[8];
+	int32_t timestamp;
+	int32_t serial;
+	int16_t type;
+	int16_t flag;
 } dwg_msg_des_header_t;
 
 typedef struct dwg_sms_req
@@ -69,6 +74,7 @@ typedef struct dwg_sms_res
 {
 	int count_of_number;
 	char number[24];
+	str_t str_number;
 	int port;
 	dwg_sms_result_code_t result;
 	int count_of_slice;
@@ -78,12 +84,14 @@ typedef struct dwg_sms_res
 typedef struct dwg_sms_received
 {
 	char number[24];
+	str_t str_number;
 	int type;
 	int port;
 	char timestamp[16];
 	int timezone;
 	int encoding;
 	str_t message;
+
 } dwg_sms_received_t;
 
 typedef struct dwg_port_status
@@ -107,6 +115,26 @@ typedef struct dwg_ports_status
 #define DWG_TYPE_SEND_SMS_RESULT_RESP	4
 #define DWG_TYPE_RECV_SMS				5
 #define DWG_TYPE_RECV_SMS_RESULT		6
+#define DWG_TYPE_RECV_RSSI				0x0d
+#define DWG_TYPE_RECV_RSSI_RESP			0x0e
+#define DWG_TYPE_RECV_AUTH				0x0f
+#define DWG_TYPE_RECV_AUTH_RESP			0x10
+
+#define DWG_ENCODING_GSM7BIT		0   // valid only in API implementations prior to 1.4
+#define DWG_ENCODING_ASCII			0   // ASCII is used for API version 1.4
+#define DWG_ENCODING_UNICODE		1	// called UCS2 in API 2.0
+
+#define DWG_MSG_TYPE_SMS			1
+#define DWG_MSG_TYPE_MMS			1
+
+#define ADD_MSG_OFFSET(_field_, _offset_, _output_) memcpy(&_output_[_offset_], &_field_, sizeof(_field_)); \
+													_offset_ += sizeof(_field_);
+
+#define GET_MSG_OFFSET(_field_, _offset_, _input_) memcpy(_field_, &_input_[offset], sizeof(_field_)); \
+													_offset_ += sizeof(_field_);
+
+#define DWG_CALL_IF_NOT_NULL(_func_, _gwid_, _param_) if (_func_!= NULL) \
+												_func_(_gwid_, _param_);
 
 typedef void (*status_callback_fptr) (str_t *gw_ip, dwg_ports_status_t *status);
 typedef void (*msg_response_callback_fptr) (str_t *gw_ip, dwg_sms_response_t *res);
@@ -120,7 +148,30 @@ typedef struct dwg_message_callback
 
 } dwg_message_callback_t;
 
+typedef struct dwg_outqueue
+{
+	struct dwg_outqueue *next;
+	struct dwg_outqueue *prev;
+
+	str_t content;
+} dwg_outqueue_t;
+
+_bool dwg_build_keep_alive(str_t *output);
+_bool dwg_build_sms(sms_t *sms, int port, str_t *output);
+void dwg_get_msg_header(str_t *input, dwg_msg_header_t *output);
+_bool dwg_build_sms_ack(dwg_msg_des_header_t *original_hdr, str_t *output);
+_bool dwg_build_sms_res_ack(dwg_msg_des_header_t *original_hdr, str_t *output);
+dwg_msg_des_header_t dwg_deserialize_message(str_t *input, str_t *body);
+_bool dwg_build_status_response(dwg_msg_des_header_t *original_hdr, str_t *output);
+_bool dwg_build_auth_response(dwg_msg_des_header_t *original_hdr, str_t *output);
+_bool dwg_build_rssi_response(dwg_msg_des_header_t *original_hdr, str_t *output);
 void dwg_send_sms(str_t *destination, str_t *message, unsigned int port);
 void dwg_start_server(int port, dwg_message_callback_t *callbacks);
+void dwg_process_message(str_t *ip_from, str_t *input, dwg_outqueue_t *outqueue);
+_bool dwg_deserialize_sms_received(str_t *msg_body, dwg_sms_received_t *received);
+_bool dwg_build_sms_recv_ack(dwg_msg_des_header_t *original_hdr, str_t *output);
+
+void print_something(const char *str);
+
 
 #endif /* DWG_H_ */

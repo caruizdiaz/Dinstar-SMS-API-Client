@@ -5,6 +5,6 @@
 #
 
 all: 	
-	gcc main.c -ldwgsms.pub -lpthread -o dwgclient
+	gcc main.c -ldwgsms.pub -lpthread -o dwgclient -g
 clean:
 	rm -rf dwgclient

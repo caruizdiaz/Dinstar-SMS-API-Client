@@ -10,6 +10,11 @@
 
 #include <stdio.h>
 
+typedef unsigned int 	_uint;
+typedef unsigned short 	_ushort;
+typedef unsigned char 	_uchar;
+typedef unsigned int 	_bool;
+
 typedef struct str
 {
 	char *s;
