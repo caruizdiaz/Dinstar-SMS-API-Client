@@ -5,6 +5,7 @@
 #
 
 all: 	
-	gcc main.c -ldwgsms.pub -lpthread -o dwgclient -g
+	gcc main.c -ldwgsms.pub -lpthread -o sendussd -g
+	gcc sendsms.c -ldwgsms.pub -lpthread -o sendsms -g
 clean:
-	rm -rf dwgclient
+	rm -rf sendsms sendussd
