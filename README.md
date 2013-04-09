@@ -14,11 +14,9 @@ Installation
 ======================
 
 - install the library first: https://github.com/caruizdiaz/DWG2000-SMS-API, then ...
-
+<pre>
 make
-
-./sendsms <listen-port> <gw-port> <number> "<message>"
-
-./sendussd <listen-port> <gw-port>
-
+./sendsms &#60;listen-port&#62; &#60;gw-port&#62; &#60;number&#62; "&#60;message&#62;"
+./sendussd &#60;listen-port&#62; &#60;gw-port&#62;
+</pre>
 
